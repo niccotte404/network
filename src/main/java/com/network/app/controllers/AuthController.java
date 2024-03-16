@@ -6,6 +6,7 @@ import com.network.app.models.Role;
 import com.network.app.models.UserEntity;
 import com.network.app.repositories.RoleRepository;
 import com.network.app.repositories.UserRepository;
+import com.network.app.security.jwt.JwtTokenMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +29,16 @@ public class AuthController {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtTokenMapper jwtTokenMapper;
 
     @Autowired
     public AuthController(UserRepository userRepository, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
+                          PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtTokenMapper jwtTokenMapper) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.jwtTokenMapper = jwtTokenMapper;
     }
 
     @PostMapping("login")
@@ -46,9 +49,10 @@ public class AuthController {
                         loginDto.getUsername(),
                         loginDto.getPassword()));
 
+        String token = jwtTokenMapper.generateToken(auth.getName());
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        return new ResponseEntity<>("User login success!", HttpStatus.OK);
+        return new ResponseEntity<>(token, HttpStatus.OK);
 
     }
 
