@@ -2,7 +2,7 @@ create table users
 (
     id uuid not null primary key,
     password varchar(255),
-    username varchar(255)
+    username varchar(255) unique
 );
 
 create table roles
