@@ -1,7 +1,7 @@
 package com.network.app.controllers;
 
-import com.network.app.dto.LoginDto;
-import com.network.app.dto.RegisterDto;
+import com.network.app.models.dto.LoginDto;
+import com.network.app.models.dto.RegisterDto;
 import com.network.app.models.Role;
 import com.network.app.models.UserEntity;
 import com.network.app.repositories.RoleRepository;

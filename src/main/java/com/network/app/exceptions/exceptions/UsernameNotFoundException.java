@@ -1,8 +1,6 @@
-package com.network.app.exceptions;
+package com.network.app.exceptions.exceptions;
 
 public class UsernameNotFoundException extends RuntimeException{
-
-    private static final long serialVersionId = 2;
 
     public UsernameNotFoundException(String message) {
         super(message);

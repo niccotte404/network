@@ -22,15 +22,8 @@ public class UserEntity {
     private UUID id;
     private String username;
     private String password;
-    private String email;
-    private String description;
-    private String imageUrl;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "address_id")
-    private Address address;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @PrimaryKeyJoinColumn
     private UserInfo userInfo;
 

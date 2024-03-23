@@ -1,7 +1,7 @@
 package com.network.app.services.impl;
 
-import com.network.app.exceptions.UserIdNotFoundException;
-import com.network.app.exceptions.UsernameNotFoundException;
+import com.network.app.exceptions.exceptions.UserIdNotFoundException;
+import com.network.app.exceptions.exceptions.UsernameNotFoundException;
 import com.network.app.models.UserEntity;
 import com.network.app.models.UserInfo;
 import com.network.app.repositories.UserInfoRepository;

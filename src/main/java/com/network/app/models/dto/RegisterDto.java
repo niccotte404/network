@@ -1,4 +1,4 @@
-package com.network.app.dto;
+package com.network.app.models.dto;
 
 import lombok.Data;
 

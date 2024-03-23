@@ -1,8 +1,6 @@
-package com.network.app.exceptions;
+package com.network.app.exceptions.exceptions;
 
 public class UserIdNotFoundException extends RuntimeException {
-
-    private static final long serialVersionId = 1;
 
     public UserIdNotFoundException(String message) {
         super(message);
