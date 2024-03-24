@@ -4,6 +4,7 @@ import com.network.app.exceptions.exceptions.UsernameNotFoundException;
 import com.network.app.models.UserEntity;
 import com.network.app.models.UserInfo;
 import com.network.app.models.dto.UserDetailsResponse;
+import com.network.app.models.dto.UserDetailsDto;
 import com.network.app.models.dto.UserInfoDto;
 import com.network.app.repositories.UserInfoRepository;
 import com.network.app.repositories.UserRepository;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +24,7 @@ import java.util.List;
 public class UserServicesImpl implements UserServices {
 
     private final UserInfoRepository userInfoRepository;
-    private final UserRepository userRepository;
+    private final UserRepository userRepository;;
 
     @Autowired
     public UserServicesImpl(UserInfoRepository userInfoRepository, UserRepository userRepository) {
@@ -40,19 +43,12 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public void addUserInfo(UserInfo userInfo) {
-        UserEntity user = userRepository.findByUsername(userInfo.getUsername()).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
-        userInfo.setId(user.getId());
-        userInfoRepository.save(userInfo);
-    }
-
-    @Override
     public UserDetailsResponse getAllUsersInfoDto(int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<UserInfo> pageOfUsersInfo = userInfoRepository.findAll(pageable);
 
         List<UserInfo> usersInfoContent = pageOfUsersInfo.getContent();
-        List<UserInfoDto> usersInfoDto = usersInfoContent.stream().map(this::mapUserInfoToDto).toList();
+        List<UserDetailsDto> usersInfoDto = usersInfoContent.stream().map(this::mapUserDetailsToDto).toList();
 
         return UserDetailsResponse.builder()
                 .content(usersInfoDto)
@@ -64,8 +60,34 @@ public class UserServicesImpl implements UserServices {
                 .build();
     }
 
-    private UserInfoDto mapUserInfoToDto(UserInfo userInfo){
-        return UserInfoDto.builder()
+    @Override
+    public UserInfo addUserInfoWithDto(UserInfoDto userInfoDto, String username) {
+        UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
+
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(user.getId());
+        userInfo.setUsername(username);
+        userInfo.setEmail(userInfoDto.getEmail());
+        userInfo.setDescription(userInfoDto.getDescription());
+        userInfo.setImageUrl(userInfoDto.getImageUrl());
+        userInfo.setUser(user);
+
+        user.setUserInfo(userInfo);
+
+        userRepository.save(user);
+        userInfoRepository.save(userInfo);
+
+        return userInfo;
+    }
+
+    @Override
+    public boolean isCurrentUserEquals(String username) {
+        String actualUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        return actualUser.equals(username);
+    }
+
+    private UserDetailsDto mapUserDetailsToDto(UserInfo userInfo){
+        return UserDetailsDto.builder()
                 .username(userInfo.getUsername())
                 .imageUrl(userInfo.getImageUrl())
                 .build();

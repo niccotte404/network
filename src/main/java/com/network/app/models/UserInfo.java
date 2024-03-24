@@ -19,7 +19,7 @@ public class UserInfo {
     private String description;
     private String imageUrl;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @MapsId
     @JoinColumn(name = "user_id")
     private UserEntity user;
