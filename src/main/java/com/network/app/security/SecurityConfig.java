@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .authenticationEntryPoint(jwtAuthEntryPoint))
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/auth/**").permitAll()
-                        .anyRequest().authenticated());
+                        .anyRequest().permitAll());
 
         return httpSecurity.build();
     }

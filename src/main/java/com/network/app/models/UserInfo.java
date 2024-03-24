@@ -14,6 +14,7 @@ public class UserInfo {
     @Id
     @Column(name = "user_id")
     private UUID id;
+    private String username;
     private String email;
     private String description;
     private String imageUrl;

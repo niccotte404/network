@@ -14,10 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 @Service
-@EnableAsync
 public class CloudinaryServiceImpl implements CloudinaryService {
 
     private final Cloudinary cloudinaryConfig;
@@ -28,8 +28,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         this.cloudinaryConfig = cloudinaryConfig;
     }
 
-    @Async
-    public String uploadImageAsync(MultipartFile image) {
+    public String uploadImage(MultipartFile image) {
         try {
             File convertedImage = convertMultipartFileToFile(image);
             var uploadResult = cloudinaryConfig.uploader().upload(convertedImage, ObjectUtils.emptyMap());
@@ -48,8 +47,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
         }
     }
 
-    @Async
-    public String deleteImageAsync(String publicImageId){
+    public String deleteImage(String publicImageId){
         try {
             var deletionParams = cloudinaryConfig.uploader().destroy(publicImageId, ObjectUtils.emptyMap());
             return deletionParams.get("result").toString();
@@ -62,7 +60,7 @@ public class CloudinaryServiceImpl implements CloudinaryService {
 
     private File convertMultipartFileToFile(MultipartFile image) {
         try {
-            File convertedFile = new File(image.getOriginalFilename());
+            File convertedFile = new File(Objects.requireNonNull(image.getOriginalFilename()));
 
             FileOutputStream fileStream = new FileOutputStream(convertedFile);
             fileStream.write(image.getBytes());
