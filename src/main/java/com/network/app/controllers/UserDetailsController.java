@@ -5,9 +5,12 @@ import com.network.app.models.dto.UserDetailsResponse;
 import com.network.app.models.dto.UserInfoDto;
 import com.network.app.services.interfaces.UserServices;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +21,8 @@ public class UserDetailsController {
     private final UserServices userServices;
 
     @GetMapping("details/{username}")
-    public ResponseEntity<UserInfo> getUserDetails(@PathVariable("username") String username) {
-        UserInfo userDetails = userServices.getUserInfoByUsername(username);
+    public ResponseEntity<UserInfoDto> getUserDetails(@PathVariable("username") String username) {
+        UserInfoDto userDetails = userServices.getUserInfoDtoByUsername(username);
         return new ResponseEntity<>(userDetails, HttpStatus.OK);
     }
 
@@ -38,6 +41,7 @@ public class UserDetailsController {
             @RequestBody UserInfoDto userInfoDto,
             @PathVariable("username") String username
     ) {
+        //todo fix this
         UserInfo userInfo = userServices.addUserInfoWithDto(userInfoDto, username);
         return new ResponseEntity<>("User details successfully added", HttpStatus.OK);
     }

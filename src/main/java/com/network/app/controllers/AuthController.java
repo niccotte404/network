@@ -1,14 +1,13 @@
 package com.network.app.controllers;
 
-import com.network.app.models.UserInfo;
-import com.network.app.models.dto.LoginDto;
-import com.network.app.models.dto.RegisterDto;
 import com.network.app.models.Role;
 import com.network.app.models.UserEntity;
-import com.network.app.models.dto.UserDetailsDto;
+import com.network.app.models.UserInfo;
+import com.network.app.models.dto.AuthResponseDto;
+import com.network.app.models.dto.LoginDto;
+import com.network.app.models.dto.RegisterDto;
 import com.network.app.repositories.RoleRepository;
 import com.network.app.repositories.UserRepository;
-import com.network.app.security.CustomUserDetailsService;
 import com.network.app.security.jwt.JwtTokenMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +16,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,45 +27,45 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenMapper jwtTokenMapper;
-    private final CustomUserDetailsService customUserDetailsService;
+    private final JwtTokenMapper tokenMapper;
 
     @Autowired
-    public AuthController(UserRepository userRepository, RoleRepository roleRepository,
-                          PasswordEncoder passwordEncoder, JwtTokenMapper jwtTokenMapper, CustomUserDetailsService customUserDetailsService) {
+    public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
+                          RoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtTokenMapper tokenMapper) {
+        this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtTokenMapper = jwtTokenMapper;
-        this.customUserDetailsService = customUserDetailsService;
+        this.tokenMapper = tokenMapper;
     }
 
     @PostMapping("login")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto){
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto){
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginDto.getUsername(),
+                        loginDto.getPassword()));
 
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(loginDto.getUsername());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = tokenMapper.generateToken(authentication.getName());
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-        String token = jwtTokenMapper.generateToken(userDetails.getUsername());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        return new ResponseEntity<>(token, HttpStatus.OK);
-
+        return new ResponseEntity<>(new AuthResponseDto(token), HttpStatus.OK);
     }
 
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
-
-        if (userRepository.existsByUsername(registerDto.getUsername()))
+        if (userRepository.existsByUsername(registerDto.getUsername())) {
             return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
+        }
 
         UserEntity user = new UserEntity();
         user.setUsername(registerDto.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
+        user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
 
         Role roles = roleRepository.findByName("USER").get();
         user.setRoles(Collections.singletonList(roles));
@@ -81,6 +79,6 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return new ResponseEntity<>("User register success!", HttpStatus.OK);
+        return new ResponseEntity<>("User registered success!", HttpStatus.OK);
     }
 }

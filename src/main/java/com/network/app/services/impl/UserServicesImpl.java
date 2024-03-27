@@ -86,9 +86,23 @@ public class UserServicesImpl implements UserServices {
         return actualUser.equals(username);
     }
 
+    @Override
+    public UserInfoDto getUserInfoDtoByUsername(String username) {
+        return mapUserInfoToDto(userInfoRepository.findUserInfoByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found")));
+    }
+
     private UserDetailsDto mapUserDetailsToDto(UserInfo userInfo){
         return UserDetailsDto.builder()
                 .username(userInfo.getUsername())
+                .imageUrl(userInfo.getImageUrl())
+                .build();
+    }
+
+    private UserInfoDto mapUserInfoToDto(UserInfo userInfo){
+        return UserInfoDto.builder()
+                .username(userInfo.getUsername())
+                .email(userInfo.getEmail())
+                .description(userInfo.getDescription())
                 .imageUrl(userInfo.getImageUrl())
                 .build();
     }

@@ -11,4 +11,5 @@ public interface UserServices {
     UserDetailsResponse getAllUsersInfoDto(int pageNumber, int pageSize);
     UserInfo addUserInfoWithDto(UserInfoDto userInfoDto, String username);
     boolean isCurrentUserEquals(String username);
+    UserInfoDto getUserInfoDtoByUsername(String username);
 }
