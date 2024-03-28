@@ -9,7 +9,7 @@ public interface UserServices {
     UserInfo updateUserInfo(UserInfo userInfo);
     UserInfo getUserInfoByUsername(String username);
     UserDetailsResponse getAllUsersInfoDto(int pageNumber, int pageSize);
-    UserInfo addUserInfoWithDto(UserInfoDto userInfoDto, String username);
+    UserInfo addOrUpdateUserInfoWithDto(UserInfoDto userInfoDto, String username);
     boolean isCurrentUserEquals(String username);
     UserInfoDto getUserInfoDtoByUsername(String username);
 }

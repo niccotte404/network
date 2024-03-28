@@ -61,7 +61,7 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public UserInfo addUserInfoWithDto(UserInfoDto userInfoDto, String username) {
+    public UserInfo addOrUpdateUserInfoWithDto(UserInfoDto userInfoDto, String username) {
         UserEntity user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Username not found"));
 
         UserInfo userInfo = new UserInfo();

@@ -32,7 +32,7 @@ public class UserDetailsController {
     }
 
     @PostMapping("details/{username}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
     public ResponseEntity<String> addUserInfo(
             @RequestBody UserInfoDto userInfoDto,
             @PathVariable("username") String username
@@ -40,7 +40,20 @@ public class UserDetailsController {
         if (!userServices.isCurrentUserEquals(username))
             return new ResponseEntity<>("User details can not be added", HttpStatus.BAD_REQUEST);
 
-        userServices.addUserInfoWithDto(userInfoDto, username);
+        userServices.addOrUpdateUserInfoWithDto(userInfoDto, username);
+        return new ResponseEntity<>("User details successfully added", HttpStatus.OK);
+    }
+
+    @PutMapping("details/{username}")
+    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    public ResponseEntity<String> updateUserInfo(
+            @RequestBody UserInfoDto userInfoDto,
+            @PathVariable("username") String username
+    ) {
+        if (!userServices.isCurrentUserEquals(username))
+            return new ResponseEntity<>("User details can not be added", HttpStatus.BAD_REQUEST);
+
+        userServices.addOrUpdateUserInfoWithDto(userInfoDto, username);
         return new ResponseEntity<>("User details successfully added", HttpStatus.OK);
     }
 }

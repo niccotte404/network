@@ -1,9 +1,6 @@
 package com.network.app.exceptions;
 
-import com.network.app.exceptions.exceptions.ConvertingException;
-import com.network.app.exceptions.exceptions.CloudinaryException;
-import com.network.app.exceptions.exceptions.UserIdNotFoundException;
-import com.network.app.exceptions.exceptions.UsernameNotFoundException;
+import com.network.app.exceptions.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -47,6 +44,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ErrorObject> handleUploadException(CloudinaryException exception, WebRequest request) {
+        ErrorObject errorObject = new ErrorObject();
+        errorObject.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        errorObject.setMessage(exception.getMessage());
+        errorObject.setTimestamp(new Date());
+
+        return new ResponseEntity<>(errorObject, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ErrorObject> handlePostNotFoundException(PostNotFoundException exception, WebRequest request) {
         ErrorObject errorObject = new ErrorObject();
         errorObject.setStatusCode(HttpStatus.BAD_REQUEST.value());
         errorObject.setMessage(exception.getMessage());
