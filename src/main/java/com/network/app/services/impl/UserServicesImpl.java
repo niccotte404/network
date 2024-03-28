@@ -82,7 +82,7 @@ public class UserServicesImpl implements UserServices {
 
     @Override
     public boolean isCurrentUserEquals(String username) {
-        String actualUser = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        String actualUser = SecurityContextHolder.getContext().getAuthentication().getName();
         return actualUser.equals(username);
     }
 

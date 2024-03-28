@@ -1,16 +1,12 @@
 package com.network.app.controllers;
 
-import com.network.app.models.UserInfo;
 import com.network.app.models.dto.UserDetailsResponse;
 import com.network.app.models.dto.UserInfoDto;
 import com.network.app.services.interfaces.UserServices;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -36,13 +32,15 @@ public class UserDetailsController {
     }
 
     @PostMapping("details/{username}")
-    @PreAuthorize("hasAuthority('USER') and @userServicesImpl.isCurrentUserEquals(username)")
+    @PreAuthorize("hasAuthority('USER')")
     public ResponseEntity<String> addUserInfo(
             @RequestBody UserInfoDto userInfoDto,
             @PathVariable("username") String username
     ) {
-        //todo fix this
-        UserInfo userInfo = userServices.addUserInfoWithDto(userInfoDto, username);
+        if (!userServices.isCurrentUserEquals(username))
+            return new ResponseEntity<>("User details can not be added", HttpStatus.BAD_REQUEST);
+
+        userServices.addUserInfoWithDto(userInfoDto, username);
         return new ResponseEntity<>("User details successfully added", HttpStatus.OK);
     }
 }
