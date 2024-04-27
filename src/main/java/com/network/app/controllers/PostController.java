@@ -10,11 +10,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/post/")
+@PreAuthorize("hasAuthority('USER')")
 public class PostController {
 
     private final PostService postService;
@@ -26,8 +26,7 @@ public class PostController {
         this.userServices = userServices;
     }
 
-    @PostMapping("add/{username}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PostMapping("{username}")
     public ResponseEntity<String> addPost(
             @RequestBody Post post,
             @PathVariable("username") String username
@@ -39,8 +38,7 @@ public class PostController {
         return new ResponseEntity<>("Post successfully added", HttpStatus.OK);
     }
 
-    @PutMapping("update/{username}")
-    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("{username}")
     public ResponseEntity<String> updatePost(
             @RequestBody Post post,
             @PathVariable("username") String username
@@ -52,8 +50,8 @@ public class PostController {
         return new ResponseEntity<>("Post successfully updated", HttpStatus.OK);
     }
 
-    @DeleteMapping("delete/{username}/{postId}")
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @DeleteMapping("{username}/{postId}")
+    @PreAuthorize("hasAnyAuthority('ADMIN')")
     public ResponseEntity<String> deletePost(
             @PathVariable("username") String username,
             @PathVariable("postId") UUID postId
